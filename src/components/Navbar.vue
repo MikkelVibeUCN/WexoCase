@@ -14,13 +14,15 @@
         @mouseleave="isGenresOpen = false"
       >
         Genres
-        <ul v-if="isGenresOpen" class="dropdown-menu">
-          <li class="dropdown-item" v-for="(genre, i) in genres" :key="i">
-            {{ genre.name }}
-          </li>
-          
-        </ul>
-        <Icon :ImgWidth="10" :ImgHeight="5" srcImage="/DropDownIcon.svg" />
+        <transition name="slide-down">
+          <ul v-if="isGenresOpen" class="dropdown-menu">
+            <li class="dropdown-item" v-for="(genre, i) in genres" :key="i">
+              {{ genre.name }}
+            </li>
+          </ul>
+        </transition>
+
+        <Icon :ImgWidth="10" :ImgHeight="5" srcImage="/DropDownIcon.svg"/>
       </li>
 
       <li class="nav-item">
@@ -60,6 +62,7 @@ export default {
     background-color: #000000;
     border-bottom: 7px solid #0D0D0D;
     width: 100vw;
+    height: 93px;
     top: 0;
     position: fixed;
     margin-left: -50vw;
@@ -96,18 +99,22 @@ export default {
     justify-content: center;
     cursor: pointer;
     text-decoration: none;
-  color: inherit;
+    color: inherit;
+    transition: opacity 0.3s ease;
   }
   
   .nav-item:hover {
     opacity: 0.8;
   }
 
+
+
 .router-link-active {
   font-weight: bold;
 }
   .dropdown {
   position: relative;
+  gap: 5px;
 }
 
 .dropdown-menu {
@@ -126,16 +133,36 @@ export default {
 
   min-width: 100%; /* At least as wide as "Genres" */
   width: max-content; /* Expand to fit longest item */
+  transition: all 0.3s ease;
 }
 
 .dropdown-item {
   padding: 0.5rem 1rem;
   white-space: nowrap;
   cursor: pointer;
+  transition: background-color 0.1s ease;
 }
 
 .dropdown-item:hover {
   background-color: #333;
 }
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: max-height 0.3s ease-in, opacity 0.1s ease-out;
+  overflow: hidden;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+
+.slide-down-enter-to,
+.slide-down-leave-from {
+  max-height: 1000px; /* Set high enough to fit all items */
+  opacity: 1;
+}
+
 
   </style>
