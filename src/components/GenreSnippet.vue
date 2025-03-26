@@ -41,10 +41,10 @@
 
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import MovieCard from './Shared/Movie.vue'
 
-defineProps<{
+const props = defineProps<{
   genreName: string
   genreId: number
   movies: {
@@ -56,6 +56,16 @@ defineProps<{
     rating: number
   }[]
 }>()
+
+watch(
+  () => props.movies,
+  async () => {
+    await nextTick()
+    updateScrollButtons()
+  },
+  { immediate: true }
+)
+
 
 const scrollContainer = ref<HTMLDivElement | null>(null)
 const canScrollLeft = ref(false)
@@ -80,9 +90,11 @@ const handleScroll = () => {
   updateScrollButtons()
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
   updateScrollButtons()
 })
+
 
 </script>
 

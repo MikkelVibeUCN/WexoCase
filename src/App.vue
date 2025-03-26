@@ -6,7 +6,9 @@ import Footer from './components/Footer.vue';
 
 <template>
   <Navbar/>
-  <RouterView/>
+  <div class="page-content">
+    <RouterView/>
+  </div>
   <Footer/>
 </template>
 
@@ -22,5 +24,9 @@ import Footer from './components/Footer.vue';
 }
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
+}
+.page-content {
+  padding-top: 64px;
+  padding-bottom: 200px;
 }
 </style>

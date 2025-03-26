@@ -21,7 +21,7 @@ export class GenreService extends Service {
 
     static async getMoviesFromGenreId(id: number, page: number): Promise<Movie[]> {
         try {
-            const url = `${Service.BASE_URL}/discover/movie?include_adult=true&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc&vote_count.gte=30&with_genres=${id}`;
+            const url = `${Service.BASE_URL}/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc&vote_count.gte=30&with_genres=${id}`;
 
             console.log(url);
 
@@ -31,7 +31,7 @@ export class GenreService extends Service {
             });
             const data = await response.json();
             const genres = await this.fetchGenres();
-            return MapDataToMovies({ data, genres });
+            return MapDataToMovies(data.results, genres);
         }
         catch {
             console.error('Failed to get movies from genre');
@@ -39,7 +39,6 @@ export class GenreService extends Service {
         }
     }
 }
-
 
 export interface Genre {
     id: number;

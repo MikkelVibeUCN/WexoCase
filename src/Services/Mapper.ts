@@ -25,8 +25,8 @@ export function MapToMovie(data: any, genreList: Genre[]): Movie {
     }
 }
 
-export function MapDataToMovies(test: { data: any[], genres: Genre[] }): Movie[] {
-    console.log(JSON.stringify(test.genres, null, 2));
-    return test.data.map((movie) => MapToMovie(movie, test.genres));
+export function MapDataToMovies(data: any[], genres: Genre[]): Movie[] {
+    console.log(JSON.stringify(genres, null, 2));
+    return data.map((movie) => MapToMovie(movie, genres));
 }
   
