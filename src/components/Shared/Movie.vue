@@ -1,42 +1,49 @@
 <template>
-    <div
-      class="movie-card"
-      :style="{ width }"
-      @mouseenter="hover = true"
-      @mouseleave="hover = false"
-    >
-      <div class="image-wrapper">
-        <img :src="imageUrl" :alt="title" :class="{ blurred: hover }" />
-        <div class="overlay" :class="{ visible: hover }">
-          <h3 class="movie-title">{{ title }}</h3>
-          <p class="movie-runtime">{{ runtime }}</p>
-  
-          <div class="genre-tags">
-            <span class="genre-tag" v-for="(genre, i) in genres" :key="i">
-              {{ genre }}
-            </span>
-          </div>
-  
-          <p class="movie-rating">{{ rating }}/10 ⭐</p>
+  <div
+    class="movie-card"
+    :style="{ width }"
+    @mouseenter="hover = true"
+    @mouseleave="hover = false"
+    @click="goToMoviePage"
+  >
+    <div class="image-wrapper">
+      <img :src="imageUrl" :alt="title" :class="{ blurred: hover }" />
+      <div class="overlay" :class="{ visible: hover }">
+        <h3 class="movie-title">{{ title }}</h3>
+        <p class="movie-rating">{{ rating }}/10 ⭐</p>
+        <div class="genre-tags">
+          <span class="genre-tag" v-for="(genre, i) in genres" :key="i">
+            {{ genre }}
+          </span>
         </div>
       </div>
     </div>
-  </template>
+  </div>
+</template>
+
   
   <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-defineProps<{
+const props = defineProps<{
   id: number
   imageUrl: string
   title: string
-  runtime: string // e.g., "2h 15m"
   genres: string[] // e.g., ["Action", "Drama"]
   rating: number
   width?: string
 }>()
 
+const { id } = props
+
+const router = useRouter()
 const hover = ref(false)
+
+function goToMoviePage() {
+  router.push(`/movie/${id}`)
+}
+
 </script>
 
   
@@ -49,6 +56,8 @@ const hover = ref(false)
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   background-color: #111;
   cursor: pointer;
+  box-shadow: 10px 10px 9.6px 0px rgba(0, 0, 0, 1);
+
 }
 
 .movie-card:hover .image-wrapper img {
@@ -70,7 +79,7 @@ const hover = ref(false)
 }
 
 .image-wrapper img.blurred {
-  filter: blur(4px) brightness(0.5);
+  filter: blur(2px) brightness(0.9);
 }
 
 .overlay {
@@ -95,9 +104,10 @@ const hover = ref(false)
 }
 
 .movie-title {
-  font-size: 1.1rem;
+  font-size: 0.8rem;
   font-weight: bold;
   margin-bottom: 0.25rem;
+  text-align: center;
 }
 
 .movie-runtime {
@@ -117,7 +127,7 @@ const hover = ref(false)
   background-color: rgba(255, 255, 255, 0.1);
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   white-space: nowrap;
   color: #fff;
   opacity: 0.9;
@@ -131,7 +141,8 @@ const hover = ref(false)
 .movie-rating {
   font-weight: bold;
   color: #facc15;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  text-align: center;
 }
 
   </style>

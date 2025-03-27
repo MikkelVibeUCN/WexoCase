@@ -1,40 +1,50 @@
 <template>
-  <nav class="navbar">
-    <Icon srcImage="/Icon.png" />
+  <transition name="navbar-fade">
+    <nav v-show="showNavbar" class="navbar">
+        <router-link to="/">
+          <img src="/Icon.png" class="logo">
+        </router-link>
+      </img>
 
-    <ul class="nav-items">
-      
-      <router-link class="nav-item" v-for="(item, index) in navbarItems" :key="index" :to="item.route">
-        {{ item.displayText }}
-      </router-link>
+      <ul class="nav-items">
+        <router-link
+          class="nav-item"
+          v-for="(item, index) in navbarItems"
+          :key="index"
+          :to="item.route"
+        >
+          {{ item.displayText }}
+        </router-link>
 
-      <li
-        class="nav-item dropdown"
-        @mouseenter="isGenresOpen = true"
-        @mouseleave="isGenresOpen = false"
-      >
-        Genres
-        <transition name="slide-down">
-          <ul v-if="isGenresOpen" class="dropdown-menu">
-            <li class="dropdown-item" v-for="(genre, i) in genres" :key="i">
-              {{ genre.name }}
-            </li>
-          </ul>
-        </transition>
+        <li
+          class="nav-item dropdown"
+          @mouseenter="isGenresOpen = true"
+          @mouseleave="isGenresOpen = false"
+        >
+          Genres
+          <transition name="slide-down">
+            <ul v-if="isGenresOpen" class="dropdown-menu">
+              <li class="dropdown-item" v-for="(genre, i) in genres" :key="i">
+                {{ genre.name }}
+              </li>
+            </ul>
+          </transition>
+          <Icon :ImgWidth="10" :ImgHeight="5" srcImage="/DropDownIcon.svg" />
+        </li>
 
-        <Icon :ImgWidth="10" :ImgHeight="5" srcImage="/DropDownIcon.svg"/>
-      </li>
-
-      <li class="nav-item">
-        <Icon :ImgWidth="23" :ImgHeight="23" srcImage="/UserIcon.svg" />
-      </li>
-    </ul>
-  </nav>
+        <li class="nav-item">
+          <Icon :ImgWidth="23" :ImgHeight="23" srcImage="/UserIcon.svg" />
+        </li>
+      </ul>
+    </nav>
+  </transition>
 </template>
+
   
 <script>
-import Icon from './Shared/Icon.vue';
-import { GenreService } from '../Services/GenreService.ts';
+import Icon from './Shared/Icon.vue'
+import { GenreService } from '../Services/GenreService.ts'
+import { RouterLink } from 'vue-router'
 
 export default {
   components: {
@@ -47,22 +57,42 @@ export default {
       navbarItems: [
         { displayText: 'Popular', route: '/popular' },
         { displayText: 'Home', route: '/' }
-      ]
-    };
+      ],
+      showNavbar: true,
+      lastScrollY: 0
+    }
   },
   async mounted() {
-    this.genres = await GenreService.fetchGenres();
+    this.genres = await GenreService.fetchGenres()
+    window.addEventListener('scroll', this.handleScroll, { passive: true })
+  },
+  beforeUnmount() {
+    window.removeEventListener('scroll', this.handleScroll)
+  },
+  methods: {
+    handleScroll() {
+      const currentY = window.scrollY
+
+      if (currentY < 20) {
+        this.showNavbar = true
+      } else if (currentY < this.lastScrollY) {
+        this.showNavbar = true
+      } else {
+        this.showNavbar = false
+      }
+
+      this.lastScrollY = currentY
+    }
   }
 }
 </script>
 
-  
-  <style scoped>
+<style scoped>
   .navbar {
     background-color: #000000;
     border-bottom: 7px solid #0D0D0D;
     width: 100vw;
-    height: 93px;
+    height: 10%;
     top: 0;
     position: fixed;
     margin-left: -50vw;
@@ -71,16 +101,22 @@ export default {
     left: 50%;
     right: 50%;
 
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-    
-
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    will-change: opacity, transform;
+    z-index: 10;
     box-sizing: border-box;
     padding: 0.5rem 1rem;
   }
   
+
+  .logo {
+    width: 10rem;
+    height: auto;
+    display: flex;
+  }
   .nav-items {
     display: flex;
     gap: 1rem;
@@ -128,11 +164,11 @@ export default {
   padding: 0.5rem 0;
   list-style: none;
   margin: 0;
-  z-index: 10;
+  z-index: 11;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
-  min-width: 100%; /* At least as wide as "Genres" */
-  width: max-content; /* Expand to fit longest item */
+  min-width: 100%;
+  width: max-content;
   transition: all 0.3s ease;
 }
 
@@ -162,6 +198,15 @@ export default {
 .slide-down-leave-from {
   max-height: 1000px; /* Set high enough to fit all items */
   opacity: 1;
+}
+.navbar-fade-enter-active,
+.navbar-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.navbar-fade-enter-from,
+.navbar-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 

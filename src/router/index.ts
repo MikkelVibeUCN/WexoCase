@@ -16,7 +16,7 @@ const routes = [
     component: PopularView
   },
   {
-    path: '/movie',
+    path: '/movie/:id',
     name: 'Movie',
     component: MovieView
 

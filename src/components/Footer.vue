@@ -1,11 +1,11 @@
 <template>
-    <footer class="footer">
+    <div class="footer">
       <div class="footer-left">
         <img src="/Icon.png" alt="Logo" class="logo" />
         <div class="social-icons">
-          <img src="./icons/Instagram.svg" alt="Instagram" />
-          <img src="./icons/Linkedin.svg" alt="LinkedIn" />
-          <img src="./icons/X.svg" alt="X" />
+          <img src="/Instagram.svg" alt="Instagram" />
+          <img src="/Linkedin.svg" alt="LinkedIn" />
+          <img src="/X.svg" alt="X" />
         </div>
       </div>
   
@@ -14,7 +14,7 @@
         <router-link to="/genres" class="footer-link">Genres</router-link>
         <router-link to="/popular" class="footer-link">Popular</router-link>
       </div>
-    </footer>
+    </div>
   </template>
   
   <script setup lang="ts">
@@ -22,36 +22,28 @@
   
   <style scoped>
   .footer {
+    width: 100%;
+    height: 15rem;
     background-color: #000000;
-    border-top: 7px solid #0D0D0D;
-    width: 100vw;
-    bottom: 0;
-    position: fixed;
-    margin-left: -50vw;
-    margin-right: -50vw;
-
-    left: 50%;
-    right: 50%;
-
-
+    border: 7px solid #0D0D0D;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    
-
+    align-items: center;
     box-sizing: border-box;
-    padding: 0.5rem 1rem;
   }
+
   
   .footer-left {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    padding: 3rem;
   }
   
   .logo {
-    width: 30px;
+    width: 25%;
     height: auto;
+    display: flex;
   }
   
   .social-icons {
@@ -60,8 +52,8 @@
   }
   
   .social-icons img {
-    width: 24px;
-    height: 24px;
+    width: 3%;
+    height: auto;
     cursor: pointer;
   }
   
@@ -70,6 +62,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+    padding: 3rem;
     text-align: right;
   }
   

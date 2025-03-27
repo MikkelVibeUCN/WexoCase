@@ -3,7 +3,7 @@
     class="icon"
     :style="{
       width: ImgWidth + 'px',
-      height: ImgHeight + 'px'
+      height: ImgHeight + 'px',
     }"
   >
     <img :src="srcImage" alt="User Icon" class="image" />
@@ -31,12 +31,11 @@ export default {
 
 <style scoped>
 .icon {
-
   overflow: hidden;
   cursor: pointer;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  
+  
 }
 
 .image {

@@ -1,31 +1,24 @@
 import type { Genre } from "./GenreService"
-import { getFullImagePath } from "./ImageService"
+import { getFullImagePath, getFullImagePathWithWidth } from "./ImageService"
+import type { MovieShort } from "./MovieService";
 
-export interface Movie {
-    id: number
-    imageUrl: string
-    title: string
-    runtime: string
-    genres: string[]
-    rating: number
-}
 
-export function MapToMovie(data: any, genreList: Genre[]): Movie {
+
+export function MapToMovie(data: any, genreList: Genre[]): MovieShort {
     return {
       id: data.id,
-      imageUrl: getFullImagePath(data.poster_path),
+      trailerImageUrl: getFullImagePathWithWidth(data.poster_path, 185),
       title: data.title || data.original_title,
-      runtime: 'N/A', 
       genres:
       data.genre_ids?.map((id: number) => {
         const match = genreList.find((g) => g.id === id);
         return match ? match.name : 'Unknown';
       }) || [],
-      rating: data.vote_average,
+      rating: Math.round(data.vote_average * 10) / 10,
     }
 }
 
-export function MapDataToMovies(data: any[], genres: Genre[]): Movie[] {
+export function MapDataToMovies(data: any[], genres: Genre[]): MovieShort[] {
     console.log(JSON.stringify(genres, null, 2));
     return data.map((movie) => MapToMovie(movie, genres));
 }

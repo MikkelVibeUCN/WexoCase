@@ -2,7 +2,7 @@
   <div class="genre-snippet">
     <div class="genre-header">
       <h2 class="genre-title">{{ genreName }}</h2>
-      <span class="genre-total">({{ movies.length }})</span>
+      <span class="genre-total">({{ totalResults ?? '...' }})</span>
     </div>
 
     <div class="movie-row-wrapper">
@@ -20,8 +20,7 @@
           :key="movie.id"
           :id="movie.id"
           :title="movie.title"
-          :imageUrl="movie.imageUrl"
-          :runtime="movie.runtime"
+          :imageUrl="movie.trailerImageUrl"
           :genres="movie.genres"
           :rating="movie.rating"
           width="160px"
@@ -41,35 +40,51 @@
 
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import MovieCard from './Shared/Movie.vue'
+import { type MovieShort, MovieService } from '../Services/MovieService.ts'
 
 const props = defineProps<{
   genreName: string
   genreId: number
-  movies: {
-    id: number
-    title: string
-    imageUrl: string
-    runtime: string
-    genres: string[]
-    rating: number
-  }[]
 }>()
-
-watch(
-  () => props.movies,
-  async () => {
-    await nextTick()
-    updateScrollButtons()
-  },
-  { immediate: true }
-)
-
 
 const scrollContainer = ref<HTMLDivElement | null>(null)
 const canScrollLeft = ref(false)
 const canScrollRight = ref(false)
+
+const movies = ref<MovieShort[]>([])
+const currentPage = ref(1)
+const hasMore = ref(true)
+const isLoading = ref(false)
+const totalResults = ref<number | null>(null)
+
+const fetchMovies = async () => {
+  if (isLoading.value || !hasMore.value) return
+
+  isLoading.value = true
+  try {
+    const { movies: newMovies, total } = await MovieService.getMoviesFromGenreId(props.genreId, currentPage.value)
+
+    if (totalResults.value === null) {
+      totalResults.value = total // only set on first fetch
+    }
+
+    if (newMovies.length > 0) {
+      movies.value.push(...newMovies)
+      currentPage.value += 1
+    } else {
+      hasMore.value = false
+    }
+  } catch (e) {
+    console.error('Failed to fetch movies:', e)
+  } finally {
+    isLoading.value = false
+    await nextTick()
+    updateScrollButtons()
+  }
+}
+
 
 const updateScrollButtons = () => {
   const el = scrollContainer.value
@@ -82,34 +97,41 @@ const scrollLeft = () => {
   scrollContainer.value?.scrollBy({ left: -300, behavior: 'smooth' })
 }
 
-const scrollRight = () => {
-  scrollContainer.value?.scrollBy({ left: 300, behavior: 'smooth' })
+const scrollRight = async () => {
+  const el = scrollContainer.value
+  if (!el) return
+
+  const scrollAmount = el.clientWidth * 0.15
+  el.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+
+  const scrollThreshold = el.scrollWidth * 0.75
+
+  if (el.scrollLeft + el.clientWidth >= scrollThreshold) {
+    await fetchMovies()
+  }
 }
+
 
 const handleScroll = () => {
   updateScrollButtons()
 }
 
 onMounted(async () => {
-  await nextTick()
-  updateScrollButtons()
+  await fetchMovies()
 })
-
-
 </script>
+
+
 
 <style scoped>
 .genre-snippet {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-
+  width: 100%;
   padding-left: 2rem;
   box-sizing: border-box;
+  gap: 0.5rem;
+  z-index: 1;
 }
+
 
 .genre-header {
   display: flex;
@@ -144,12 +166,14 @@ onMounted(async () => {
   overflow-x: auto;
   scroll-behavior: smooth;
   gap: 1rem;
-  padding: 0;
+  padding-bottom: 20px;
   scroll-snap-type: x mandatory;
   box-sizing: border-box;
   max-width: 100%;
   scrollbar-width: none; 
   -ms-overflow-style: none; 
+  height: auto;
+  flex-grow: 1;
 }
 
 .movie-row > * {
@@ -160,15 +184,6 @@ onMounted(async () => {
 
 .movie-row::-webkit-scrollbar {
   display: none;
-}
-
-.movie-row {
-  height: auto;
-  display: flex;
-  overflow-x: auto;
-  gap: 1rem;
-  scroll-behavior: smooth;
-  flex-grow: 1;
 }
 
 
@@ -185,6 +200,7 @@ onMounted(async () => {
   padding: 0.4rem 0.6rem;
   cursor: pointer;
   transition: background 0.3s ease;
+  z-index: 2;
 }
 
 .scroll-button:hover {

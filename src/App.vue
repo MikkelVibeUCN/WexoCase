@@ -1,16 +1,27 @@
+<template>
+  <div class="layout-container">
+    <Navbar />
+
+    <div class="page-content">
+      <RouterView />
+    </div>
+
+    <Footer />
+  </div>
+</template>
+
+
+
 <script setup lang="ts">
-import Navbar from './components/Navbar.vue';
-import Footer from './components/Footer.vue';
+import { RouterView } from 'vue-router';
+import Navbar from './components/Navbar.vue'
+import Footer from './components/Footer.vue'
 
 </script>
 
-<template>
-  <Navbar/>
-  <div class="page-content">
-    <RouterView/>
-  </div>
-  <Footer/>
-</template>
+
+
+
 
 <style scoped>
 .logo {
@@ -26,7 +37,19 @@ import Footer from './components/Footer.vue';
   filter: drop-shadow(0 0 2em #42b883aa);
 }
 .page-content {
-  padding-top: 64px;
-  padding-bottom: 200px;
+  padding-top: 64px; /* leaves space for navbar */
+  padding-bottom: 1.4em; /* leaves space for footer */
+}
+
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-content {
+  flex-grow: 1; /* this pushes the footer down */
+  padding-top: 64px; /* adjust based on your navbar */
+  padding-bottom: 1.4em;
 }
 </style>
