@@ -2,6 +2,9 @@ import { GenreService } from "./GenreService";
 import { Service } from "./Service"
 import { MapDataToMovies } from "./Mapper";
 import { getFullImagePath } from "./ImageService";
+import { AccountService } from "./AccountService";
+
+const movieCache = new Map<number, MovieDetailed>()
 
 export interface MovieShort {
     id: number
@@ -24,13 +27,13 @@ export interface MovieDetailed extends MovieShort {
 
 
 export class MovieService extends Service {
-    static async getMoviesFromGenreId(id: number, page: number): Promise<{ movies: MovieShort[], total: number}> {
+    static async getMoviesFromGenreId(id: number, page: number): Promise<{ movies: MovieShort[], total: number }> {
         try {
             const url = `/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=revenue.desc&vote_count.gte=10&with_genres=${id}`;
-    
+
             const data = await this.fetchFromApi(url);
             const genres = await GenreService.fetchGenres();
-            const movies =  MapDataToMovies(data.results, genres);
+            const movies = MapDataToMovies(data.results, genres);
             return { movies, total: data.total_results };
         }
         catch {
@@ -51,40 +54,40 @@ export class MovieService extends Service {
             const usFallback = releaseData.results.find((r: any) => r.iso_3166_1 === "US");
             const ratingEntry = (dkRelease ?? usFallback)?.release_dates?.[0];
             const age = ratingEntry?.certification ?? "N/A";
-      
-            // Get credits to extract director and top 3 crew
+
+            // Get credits to extract director and first 3 crew
             const credits = await this.fetchFromApi(`/movie/${id}/credits?language=en-US`);
             const director = credits.crew.find((c: any) => c.job === "Director")?.name ?? "Unknown";
             const top3Crew = credits.cast.slice(0, 3).map((c: any) => c.name).join(", ");
-      
+
             const videoData = await this.fetchFromApi(`/movie/${id}/videos`);
 
             const youtubeTrailer = videoData.results
-            .filter((v: any) =>
-                v.site === "YouTube" &&
-                v.type === "Trailer" &&
-                v.official === true
-            )
-            .sort((a: any, b: any) =>
-                new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
-            )[0];
+                .filter((v: any) =>
+                    v.site === "YouTube" &&
+                    v.type === "Trailer" &&
+                    v.official === true
+                )
+                .sort((a: any, b: any) =>
+                    new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
+                )[0];
 
             const detailed: MovieDetailed = {
-              id: movieDetails.id,
-              title: movieDetails.title,
-              description: movieDetails.overview,
-              trailerImageUrl: getFullImagePath(movieDetails.poster_path),
-              backDropImageUrl: getFullImagePath(movieDetails.backdrop_path),
-              genres: movieDetails.genres.map((g: any) => g.name),
-              rating: movieDetails.vote_average,
-              runtime: movieDetails.runtime,
-              releaseYear: Number(movieDetails.release_date?.slice(0, 4)) || 0,
-              age,
-              directorName: director,
-              top3Crew,
-              trailerUrl: youtubeTrailer ? `https://www.youtube.com/embed/${youtubeTrailer.key}` : ""
+                id: movieDetails.id,
+                title: movieDetails.title,
+                description: movieDetails.overview,
+                trailerImageUrl: getFullImagePath(movieDetails.poster_path),
+                backDropImageUrl: getFullImagePath(movieDetails.backdrop_path),
+                genres: movieDetails.genres.map((g: any) => g.name),
+                rating: movieDetails.vote_average,
+                runtime: movieDetails.runtime,
+                releaseYear: Number(movieDetails.release_date?.slice(0, 4)) || 0,
+                age,
+                directorName: director,
+                top3Crew,
+                trailerUrl: youtubeTrailer ? `https://www.youtube.com/embed/${youtubeTrailer.key}` : ""
             };
-      
+
             return detailed;
         }
         catch (e) {
@@ -93,8 +96,36 @@ export class MovieService extends Service {
         }
     }
 
+    static async preloadMovieDetails(id: number): Promise<MovieDetailed> {
+        if (movieCache.has(id)) {
+            return movieCache.get(id)!
+        }
 
+        const movie = await this.getAllMovieDetails(id)
+        movieCache.set(id, movie)
+        return movie
+    }
+
+    static getCachedMovie(id: number): MovieDetailed | null {
+        return movieCache.get(id) ?? null
+    }
+
+    static async getFavoriteMovies(): Promise<MovieShort[]> {
+        const sessionId = AccountService.sessionId
+        const account = AccountService.user
+      
+        if (!sessionId || !account) throw new Error('User is not logged in')
+      
+        const url = `/account/${account.id}/favorite/movies?language=en-US&sort_by=created_at.asc&session_id=${sessionId}`
+      
+        try {
+          const data = await this.fetchFromApi(url)
+          const genres = await GenreService.fetchGenres()
+          return MapDataToMovies(data.results, genres)
+        } catch (e) {
+          console.error('Failed to fetch favorite movies', e)
+          return []
+        }
+      }
+      
 }
-
-
-

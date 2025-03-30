@@ -6,32 +6,16 @@
     </div>
 
     <div class="movie-row-wrapper">
-      <button
-        v-if="canScrollLeft"
-        class="scroll-button left"
-        @click="scrollLeft"
-      >
+      <button v-if="canScrollLeft" class="scroll-button left" @click="scrollLeft">
         ◀
       </button>
 
       <div class="movie-row" ref="scrollContainer" @scroll="handleScroll">
-        <MovieCard
-          v-for="movie in movies"
-          :key="movie.id"
-          :id="movie.id"
-          :title="movie.title"
-          :imageUrl="movie.trailerImageUrl"
-          :genres="movie.genres"
-          :rating="movie.rating"
-          width="160px"
-        />
+        <MovieCard v-for="movie in movies" :key="movie.id" :id="movie.id" :title="movie.title"
+          :imageUrl="movie.trailerImageUrl" :genres="movie.genres" :rating="movie.rating" width="160px" />
       </div>
 
-      <button
-        v-if="canScrollRight"
-        class="scroll-button right"
-        @click="scrollRight"
-      >
+      <button v-if="canScrollRight" class="scroll-button right" @click="scrollRight">
         ▶
       </button>
     </div>
@@ -64,7 +48,13 @@ const fetchMovies = async () => {
 
   isLoading.value = true
   try {
-    const { movies: newMovies, total } = await MovieService.getMoviesFromGenreId(props.genreId, currentPage.value)
+    let { movies: newMovies, total } = await MovieService.getMoviesFromGenreId(
+      props.genreId,
+      currentPage.value
+    )
+
+    newMovies = newMovies.filter(movie => movie.trailerImageUrl !== "")
+
 
     if (totalResults.value === null) {
       totalResults.value = total // only set on first fetch
@@ -154,7 +144,8 @@ onMounted(async () => {
 .movie-row-wrapper {
   position: relative;
   display: flex;
-  align-items: center; /* Vertically center the button with the row */
+  align-items: center;
+  /* Vertically center the button with the row */
   overflow: hidden;
   width: 100%;
 }
@@ -170,13 +161,13 @@ onMounted(async () => {
   scroll-snap-type: x mandatory;
   box-sizing: border-box;
   max-width: 100%;
-  scrollbar-width: none; 
-  -ms-overflow-style: none; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   height: auto;
   flex-grow: 1;
 }
 
-.movie-row > * {
+.movie-row>* {
   flex: 0 0 auto;
   scroll-snap-align: start;
 }
@@ -214,5 +205,4 @@ onMounted(async () => {
 .scroll-button.right {
   right: 0.5rem;
 }
-
 </style>

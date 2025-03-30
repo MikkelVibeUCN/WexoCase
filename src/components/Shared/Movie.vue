@@ -2,8 +2,8 @@
   <div
     class="movie-card"
     :style="{ width }"
-    @mouseenter="hover = true"
-    @mouseleave="hover = false"
+    @mouseenter="preloadOnHover"
+    @mouseleave="cancelPreload"
     @click="goToMoviePage"
   >
     <div class="image-wrapper">
@@ -40,8 +40,25 @@ const { id } = props
 const router = useRouter()
 const hover = ref(false)
 
+
+
 function goToMoviePage() {
   router.push(`/movie/${id}`)
+}
+
+import { MovieService } from '../../Services/MovieService';
+import UserDropDown from '../UserDropDown.vue';
+
+function preloadOnHover() {
+  hover.value = true
+  MovieService.preloadMovieDetails(props.id).catch((err) => {
+    console.warn('Preload failed', err)
+  })
+}
+
+
+function cancelPreload() {
+  hover.value = false
 }
 
 </script>
