@@ -27,6 +27,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import MovieCard from './Shared/Movie.vue'
 import { type MovieShort, MovieService } from '../Services/MovieService.ts'
+import { AccountService } from '../Services/AccountService.ts';
 
 const props = defineProps<{
   genreName: string
@@ -107,6 +108,13 @@ const handleScroll = () => {
 }
 
 onMounted(async () => {
+  try {
+    await AccountService.initializeSession()
+    await MovieService.loadFavoriteIdsIfNeeded()
+  } catch (err) {
+    console.warn('Failed to load favorite IDs', err)
+  }
+
   await fetchMovies()
 })
 </script>

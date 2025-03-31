@@ -18,8 +18,6 @@
   </template>
   
   <script setup lang="ts">
-  import UserDropdown from './UserDropdown.vue'
-
   </script>
   
   <style scoped>

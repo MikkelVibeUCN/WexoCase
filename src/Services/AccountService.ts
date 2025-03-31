@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { Service } from './Service'
 import { AuthService } from './AuthService'
 import { CookieService } from './CookieService'
+import { MovieService } from './MovieService'
 
 export interface AccountDetails {
   id: number
@@ -12,6 +13,7 @@ export interface AccountDetails {
 
 const _user = ref<AccountDetails | null>(null)
 const _isInitialized = ref(false)
+let _initPromise: Promise<void> | null = null
 
 export class AccountService extends Service {
   static get user() {
@@ -28,32 +30,45 @@ export class AccountService extends Service {
 
   static async initializeSession(): Promise<void> {
     if (_isInitialized.value) return
+    if (_initPromise) return _initPromise
 
-    const params = new URLSearchParams(window.location.search)
-    const requestToken = params.get('request_token')
-    const sessionId = CookieService.get('session_id')
+    _initPromise = (async () => {
+      const params = new URLSearchParams(window.location.search)
+      const requestToken = params.get('request_token')
+      const sessionId = CookieService.get('session_id')
 
-    try {
-      if (sessionId) {
-        _user.value = await this.getDetails(sessionId)
-      } else if (requestToken) {
-        const newSession = await AuthService.createSession(requestToken)
-        CookieService.set('session_id', newSession, 7)
-        _user.value = await this.getDetails(newSession)
-        window.history.replaceState({}, document.title, window.location.pathname)
+      try {
+        if (sessionId) {
+          _user.value = await this.getDetails(sessionId)
+        } else if (requestToken) {
+          const newSession = await AuthService.createSession(requestToken)
+          CookieService.set('session_id', newSession, 7)
+          _user.value = await this.getDetails(newSession)
+          window.history.replaceState({}, document.title, window.location.pathname)
+        }
+
+        if (_user.value) {
+          await MovieService.loadFavoriteIdsIfNeeded()
+        }
+
+      } catch (err) {
+        this.logout()
+      } finally {
+        _isInitialized.value = true
+        _initPromise = null
       }
-    } catch (err) {
-      console.warn('Failed to initialize session', err)
-      this.logout()
-    } finally {
-      _isInitialized.value = true
-    }
+    })()
+
+    return _initPromise
   }
+
 
   static logout(): void {
     CookieService.remove('session_id')
     _user.value = null
     _isInitialized.value = false
+
+    MovieService.clearFavoriteCache?.()
   }
 
   static async getDetails(sessionId: string): Promise<AccountDetails> {
@@ -79,4 +94,14 @@ export class AccountService extends Service {
     }
     await this.postToApi(url, body)
   }
+
+  static async isMovieFavorited(movieId: number): Promise<boolean> {
+    try {
+      await MovieService.loadFavoriteIdsIfNeeded()
+      return MovieService.isMovieInFavorites(movieId)
+    } catch (err) {
+      return false
+    }
+  }
+
 }

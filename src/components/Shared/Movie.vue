@@ -1,14 +1,16 @@
 <template>
-  <div
-    class="movie-card"
-    :style="{ width }"
-    @mouseenter="preloadOnHover"
-    @mouseleave="cancelPreload"
-    @click="goToMoviePage"
-  >
+  <div class="movie-card" :style="{ width }" @mouseenter="preloadOnHover" @mouseleave="hover = false"
+    @click="goToMoviePage">
     <div class="image-wrapper">
       <img :src="imageUrl" :alt="title" :class="{ blurred: hover }" />
+
       <div class="overlay" :class="{ visible: hover }">
+        <button v-show="isLoggedIn" class="favorite-icon-btn" :class="{ 'pulse-anim': isAnimating }"
+          @click="toggleFavorite">
+          <img :src="isFavorited ? '/FavoriteIconOn.png' : '/FavoriteIconOff.png'" alt="Favorite"
+            class="favorite-icon-img" :class="{ 'icon-animate': isAnimating }" />
+        </button>
+
         <h3 class="movie-title">{{ title }}</h3>
         <p class="movie-rating">{{ rating }}/10 ⭐</p>
         <div class="genre-tags">
@@ -21,10 +23,12 @@
   </div>
 </template>
 
-  
-  <script setup lang="ts">
-import { ref } from 'vue'
+
+
+<script setup lang="ts">
+import { ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+import { AccountService } from '../../Services/AccountService';
 
 const props = defineProps<{
   id: number
@@ -47,7 +51,6 @@ function goToMoviePage() {
 }
 
 import { MovieService } from '../../Services/MovieService';
-import UserDropDown from '../UserDropDown.vue';
 
 function preloadOnHover() {
   hover.value = true
@@ -56,16 +59,48 @@ function preloadOnHover() {
   })
 }
 
+const isLoggedIn = AccountService.isLoggedIn
+const isFavorited = ref(false)
+const isAnimating = ref(false)
 
-function cancelPreload() {
-  hover.value = false
+watchEffect(() => {
+  isFavorited.value = isLoggedIn && MovieService.isMovieInFavorites(props.id)
+})
+
+
+async function toggleFavorite(e: MouseEvent) {
+  e.stopPropagation()
+
+  if (!isLoggedIn) {
+    alert('Please log in to use favorites.')
+    return
+  }
+
+  const newStatus = !isFavorited.value
+  isFavorited.value = newStatus
+
+  // 🌟 Trigger animation
+  isAnimating.value = true
+  setTimeout(() => (isAnimating.value = false), 400)
+
+  try {
+    await AccountService.addMovieToFavorites(
+      AccountService.user!.id,
+      AccountService.sessionId!,
+      props.id,
+      newStatus
+    )
+    MovieService.updateFavoriteLocally(props.id, newStatus)
+  } catch (err) {
+    console.error('Failed to update favorite', err)
+    isFavorited.value = !newStatus
+  }
 }
-
 </script>
 
-  
-  <style scoped>
-  .movie-card {
+
+<style scoped>
+.movie-card {
   aspect-ratio: 2 / 3;
   position: relative;
   border-radius: 12px;
@@ -162,5 +197,61 @@ function cancelPreload() {
   text-align: center;
 }
 
-  </style>
-  
+.favorite-icon-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  background: #1e1e1e;
+  border-radius: 50%;
+  border: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 3;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: background 0.2s ease;
+  overflow: hidden;
+}
+
+.favorite-icon-btn:hover {
+  background: #2a2a2a;
+}
+
+.favorite-icon-img {
+  width: 20px !important;
+  height: 20px !important;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 100%;
+  transform-origin: center;
+}
+
+
+
+@keyframes iconPulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px #facc15);
+  }
+
+  50% {
+    transform: scale(1.6);
+    filter: drop-shadow(0 0 12px #facc15);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px #facc15);
+  }
+}
+
+.icon-animate {
+  animation: iconPulse 0.4s ease-out;
+}
+</style>

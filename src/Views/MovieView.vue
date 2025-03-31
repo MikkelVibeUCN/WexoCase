@@ -4,7 +4,13 @@
 
     <div class="movie-content">
       <div class="movie-box">
-        <button class="favorite-btn">❤️</button>
+        <button class="favorite-btn" @click="favoriteClick">
+        <img
+          :src="isFavorited ? '/FavoriteIconOn.png' : '/FavoriteIconOff.png'"
+          alt="Favorite"
+          class="favorite-icon"
+        />
+      </button>
 
         <img class="trailer-image" :src="movie!.trailerImageUrl" alt="Trailer" @click="handleTrailerClick" />
 
@@ -71,12 +77,42 @@ const movie = ref<MovieDetailed | null>(null)
 const loaded = ref(false)
 
 const showTrailerPopup = ref(false)
+const isFavorited = ref(false)
+
 
 function handleTrailerClick() {
   if (window.innerWidth < 768) {
     showTrailerPopup.value = true
   }
 }
+
+async function favoriteClick() {
+  if (!AccountService.isLoggedIn) {
+    alert("Log in to favorite movies.")
+    return
+  }
+
+  const newStatus = !isFavorited.value
+  isFavorited.value = newStatus
+
+  try {
+    await AccountService.addMovieToFavorites(
+      AccountService.user!.id,
+      AccountService.sessionId!,
+      movie.value!.id,
+      newStatus
+    )
+
+    // ✅ Update local favorite set and reactive version
+    MovieService.updateFavoriteLocally(movie.value!.id, newStatus)
+
+  } catch (err) {
+    console.error('Failed to update favorite status', err)
+    isFavorited.value = !newStatus
+  }
+}
+
+
 
 const formattedRuntime = computed(() => {
   if (!movie.value) return ''
@@ -87,27 +123,42 @@ const formattedRuntime = computed(() => {
 
 // Get data by caching or finding
 onMounted(async () => {
-  if (movieId) {
+  if (!movieId) {
+    console.warn('No movieId found in route.')
+    return
+  }
+
+  try {
+    await AccountService.initializeSession()
+
+    // ✅ Load favorites before checking isFavorited
+    await MovieService.loadFavoriteIdsIfNeeded()
+
     const cached = MovieService.getCachedMovie(movieId)
-    if (cached) {
-      movie.value = cached
-      loaded.value = true
-      return
+    movie.value = cached || await MovieService.getAllMovieDetails(movieId)
+
+    if (movie.value) {
+      isFavorited.value = MovieService.isMovieInFavorites(movie.value.id)
     }
 
-    try {
-      const result = await MovieService.getAllMovieDetails(movieId)
-      movie.value = result
-      loaded.value = true
-    } catch (err) {
-      console.error('Failed to load movie details', err)
-    }
+    loaded.value = true
+  } catch (err) {
+    console.error('Failed to load movie details or favorite status', err)
   }
 })
+
+
 </script>
 
 <style scoped>
 /* === Layout Base === */
+
+.favorite-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
 .movie-container {
   position: relative;
   width: 100%;
