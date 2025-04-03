@@ -1,6 +1,6 @@
 <template>
     <div class="genres-container" ref="genresContainer">
-      <GenreSnippet
+      <genreSnippet
         v-for="(genreToAdd, index) in genresToAdd"
         :key="index"
         :genreName="genreToAdd.name"
@@ -11,10 +11,10 @@
   
   <script lang="ts">
   import { defineComponent } from 'vue'
-  import GenreSnippet from '../components/GenreSnippet.vue'
+  import genreSnippet from '../components/genreSnippet.vue'
   
   export default defineComponent({
-    components: { GenreSnippet },
+    components: { genreSnippet },
     data() {
       return {
         genresToAdd: [

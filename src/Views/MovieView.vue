@@ -1,16 +1,13 @@
 <template>
-  <div v-if="loaded" class="movie-container">
+  <div v-if="loaded && movie" class="movie-container">
     <img class="movie-backdrop" :src="movie!.backDropImageUrl" alt="Backdrop" />
 
     <div class="movie-content">
       <div class="movie-box">
         <button class="favorite-btn" @click="favoriteClick">
-        <img
-          :src="isFavorited ? '/FavoriteIconOn.png' : '/FavoriteIconOff.png'"
-          alt="Favorite"
-          class="favorite-icon"
-        />
-      </button>
+          <img :src="isFavorited ? '/FavoriteIconOn.png' : '/FavoriteIconOff.png'" alt="Favorite"
+            class="favorite-icon" />
+        </button>
 
         <img class="trailer-image" :src="movie!.trailerImageUrl" alt="Trailer" @click="handleTrailerClick" />
 
@@ -19,7 +16,7 @@
             <div class="title-meta">
               <h1 class="movie-title">{{ movie!.title }}</h1>
               <p class="movie-meta">
-                {{ movie!.releaseYear }} | {{ formattedRuntime }} | {{ movie!.age }}
+                {{ movie.releaseYear }} | {{ formattedRuntime }} | {{ movie.age }}
               </p>
               <div class="genre-tags">
                 <span class="genre-tag" v-for="(genre, i) in movie!.genres" :key="i">
@@ -28,7 +25,7 @@
               </div>
             </div>
 
-            <img class="trailer-image-mobile" :src="movie!.trailerImageUrl" alt="Trailer" @click="handleTrailerClick" />
+            <img class="trailer-image-mobile" :src="movie.trailerImageUrl" alt="Trailer" @click="handleTrailerClick" />
           </div>
 
           <p class="movie-description">
@@ -42,8 +39,8 @@
             <span class="label">Created by</span>: {{ movie!.directorName }}
           </p>
 
-          <div class="trailer-embed" v-show="movie?.trailerUrl !== ''">
-            <iframe :src="movie!.trailerUrl" title="Movie Trailer" frameborder="0" allowfullscreen></iframe>
+          <div class="trailer-embed" v-show="movie.trailerUrl !== ''">
+            <iframe :src="movie.trailerUrl" title="Movie Trailer" frameborder="0" allowfullscreen></iframe>
           </div>
         </div>
       </div>
@@ -53,11 +50,9 @@
     <div v-if="showTrailerPopup" class="popup-overlay">
       <div class="popup-image-wrapper">
         <button class="close-btn" @click="showTrailerPopup = false">Close</button>
-        <img class="popup-trailer-image" :src="movie!.trailerImageUrl" alt="Trailer Large View" />
+        <img class="popup-trailer-image" :src="movie.trailerImageUrl" alt="Trailer Large View" />
       </div>
     </div>
-
-
   </div>
 
   <div v-else class="loading-message">Loading movie details...</div>
@@ -79,6 +74,12 @@ const loaded = ref(false)
 const showTrailerPopup = ref(false)
 const isFavorited = ref(false)
 
+const formattedRuntime = computed(() => {
+  if (!movie.value) return ''
+  const hours = Math.floor(movie.value.runtime / 60)
+  const minutes = movie.value.runtime % 60
+  return `${hours}h ${minutes}min`
+})
 
 function handleTrailerClick() {
   if (window.innerWidth < 768) {
@@ -92,67 +93,53 @@ async function favoriteClick() {
     return
   }
 
-  const newStatus = !isFavorited.value
-  isFavorited.value = newStatus
+  const newIsFavorite = !isFavorited.value
+  isFavorited.value = newIsFavorite
 
   try {
     await AccountService.addMovieToFavorites(
       AccountService.user!.id,
       AccountService.sessionId!,
       movie.value!.id,
-      newStatus
+      newIsFavorite
     )
-
-    // ✅ Update local favorite set and reactive version
-    MovieService.updateFavoriteLocally(movie.value!.id, newStatus)
+    MovieService.updateFavoriteLocally(movie.value!.id, newIsFavorite)
 
   } catch (err) {
     console.error('Failed to update favorite status', err)
-    isFavorited.value = !newStatus
+    isFavorited.value = !newIsFavorite
   }
+
 }
 
-
-
-const formattedRuntime = computed(() => {
-  if (!movie.value) return ''
-  const hours = Math.floor(movie.value.runtime / 60)
-  const minutes = movie.value.runtime % 60
-  return `${hours}h ${minutes}min`
-})
-
-// Get data by caching or finding
-onMounted(async () => {
-  if (!movieId) {
-    console.warn('No movieId found in route.')
-    return
-  }
-
-  try {
-    await AccountService.initializeSession()
-
-    // ✅ Load favorites before checking isFavorited
-    await MovieService.loadFavoriteIdsIfNeeded()
-
-    const cached = MovieService.getCachedMovie(movieId)
-    movie.value = cached || await MovieService.getAllMovieDetails(movieId)
-
-    if (movie.value) {
-      isFavorited.value = MovieService.isMovieInFavorites(movie.value.id)
+  // Get data by caching or getting
+  onMounted(async () => {
+    if (!movieId) {
+      console.warn('No movieId found in route.')
+      return
     }
 
-    loaded.value = true
-  } catch (err) {
-    console.error('Failed to load movie details or favorite status', err)
-  }
-})
+    try {
+      await AccountService.initializeSession()
+      await MovieService.loadFavoriteIdsIfNeeded()
+
+      const cached = MovieService.getCachedMovie(movieId)
+      movie.value = cached || await MovieService.getAllMovieDetails(movieId)
+
+      if (movie.value) {
+        isFavorited.value = MovieService.isMovieInFavorites(movie.value.id)
+      }
+
+      loaded.value = true
+    } catch (err) {
+      console.error('Failed to load movie details or favorite status', err)
+    }
+  })
 
 
 </script>
 
 <style scoped>
-/* === Layout Base === */
-
 .favorite-icon {
   width: 24px;
   height: 24px;
@@ -194,7 +181,6 @@ onMounted(async () => {
   }
 }
 
-/* === Popup Image === */
 .popup-overlay {
   position: fixed;
   top: 0;

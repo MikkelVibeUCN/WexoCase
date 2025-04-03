@@ -11,7 +11,7 @@
       </button>
 
       <div class="movie-row" ref="scrollContainer" @scroll="handleScroll">
-        <MovieCard v-for="movie in movies" :key="movie.id" :id="movie.id" :title="movie.title"
+        <movie v-for="movie in movies" :key="movie.id" :id="movie.id" :title="movie.title"
           :imageUrl="movie.trailerImageUrl" :genres="movie.genres" :rating="movie.rating" width="160px" />
       </div>
 
@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
-import MovieCard from './Shared/Movie.vue'
+import movie from './Shared/movie.vue'
 import { type MovieShort, MovieService } from '../Services/MovieService.ts'
 import { AccountService } from '../Services/AccountService.ts';
 
@@ -76,7 +76,6 @@ const fetchMovies = async () => {
   }
 }
 
-
 const updateScrollButtons = () => {
   const el = scrollContainer.value
   if (!el) return
@@ -114,12 +113,9 @@ onMounted(async () => {
   } catch (err) {
     console.warn('Failed to load favorite IDs', err)
   }
-
   await fetchMovies()
 })
 </script>
-
-
 
 <style scoped>
 .genre-snippet {

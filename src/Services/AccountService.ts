@@ -52,6 +52,7 @@ export class AccountService extends Service {
         }
 
       } catch (err) {
+        console.error('Error initializing session:', err)
         this.logout()
       } finally {
         _isInitialized.value = true

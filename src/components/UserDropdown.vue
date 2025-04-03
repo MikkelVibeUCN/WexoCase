@@ -5,7 +5,7 @@
       @click="toggleMenu"
     >
       <div class="icon-button">
-        <Icon :ImgWidth="23" :ImgHeight="23" srcImage="/UserIcon.svg" />
+        <icon :ImgWidth="23" :ImgHeight="23" srcImage="/UserIcon.svg" />
       </div>
   
       <transition name="slide-down">
@@ -30,7 +30,7 @@
   <script setup lang="ts">
   import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
   import { useRouter } from 'vue-router'
-  import Icon from './Shared/Icon.vue'
+  import icon from './Shared/icon.vue'
   import { AccountService } from '../Services/AccountService'
   
   const router = useRouter()

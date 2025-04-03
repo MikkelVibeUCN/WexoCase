@@ -13,7 +13,7 @@
         :genres="movie.genres"
         :rating="movie.rating"
         width="160px"
-        @favoriteToggled="handleFavoriteChange"
+        @favorite-toggled="handleFavoriteChange"
       />
     </transition-group>
 
@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect, onMounted } from 'vue'
-import Movie from '../components/Shared/Movie.vue'
+import Movie from '../components/Shared/movie.vue'
 import { MovieService, type MovieShort, favoriteState } from '../Services/MovieService'
 import { AccountService } from '../Services/AccountService'
 
@@ -64,11 +64,6 @@ watchEffect(async () => {
 
 
 </script>
-
-
-
-
-
 <style scoped>
 .favorites-container {
   padding: 2rem;

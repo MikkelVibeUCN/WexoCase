@@ -42,8 +42,8 @@
 </template>
 
 <script>
-import Icon from './Shared/Icon.vue'
-import UserDropdown from './UserDropdown.vue'
+import Icon from './Shared/icon.vue'
+import UserDropdown from './userDropdown.vue'
 import { GenreService } from '../Services/GenreService.ts'
 
 export default {

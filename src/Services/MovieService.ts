@@ -97,11 +97,15 @@ export class MovieService extends Service {
 
   static async loadFavoriteIdsIfNeeded(): Promise<void> {
     if (favoritesFetched) return
-    favoritesFetched = true
+    
 
     const sessionId = AccountService.sessionId
     const account = AccountService.user
-    if (!sessionId || !account) return
+    if (!sessionId || !account) {
+      console.warn("Session ID or account missing – cannot fetch favorites.")
+      return
+    }
+    
 
     let page = 1
     let totalPages = 1
@@ -116,7 +120,7 @@ export class MovieService extends Service {
         for (const movie of data.results) {
           favoriteIdSet.add(movie.id)
         }
-
+        favoritesFetched = true
         page++
       } catch (e) {
         console.error('Failed to fetch favorite IDs', e)
@@ -153,7 +157,6 @@ export class MovieService extends Service {
     await this.loadFavoriteIdsIfNeeded()
     const ids = Array.from(favoriteIdSet)
 
-    const genres = await GenreService.fetchGenres()
     const movies: MovieShort[] = []
 
     for (const id of ids) {
@@ -174,7 +177,6 @@ export class MovieService extends Service {
         rating: movie.rating
       })
     }
-
     return movies
   }
 }

@@ -1,30 +1,22 @@
 <template>
   <div class="layout-container">
-    <Navbar />
+    <navbar />
 
     <div class="page-content">
       <router-view v-slot="{ Component }">
         <component :is="Component" :key="$route.fullPath" />
       </router-view>
-
     </div>
-
-    <Footer />
+    <customFooter />
   </div>
 </template>
 
-
-
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
-import Navbar from './components/Navbar.vue'
-import Footer from './components/Footer.vue'
+import navbar from './components/navbar.vue'
+import customFooter from './components/footer.vue'
 
 </script>
-
-
-
-
 
 <style scoped>
 .logo {
