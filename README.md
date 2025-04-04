@@ -9,7 +9,7 @@ This is a modern movie discovery app built for **Wexo**, using [Vue 3](https://v
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/wexo-movie-app.git
+git clone https://github.com/MikkelVibeUCN/WexoCase.git
 cd wexo-movie-app
 ```
 
