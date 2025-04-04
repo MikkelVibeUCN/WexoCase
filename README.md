@@ -6,6 +6,17 @@ This is a modern movie discovery app built for **Wexo**, using [Vue 3](https://v
 
 ## 🚀 Getting Started
 
+### 0. Prerequisites: Install Vue and Vite globally
+
+If you haven't already, install Vite and Vue CLI tools globally:
+
+```bash
+npm install -g vite
+npm install -g @vue/cli
+```
+
+---
+
 ### 1. Clone the repository
 
 ```bash
@@ -13,13 +24,7 @@ git clone https://github.com/MikkelVibeUCN/WexoCase.git
 cd WexoCase
 ```
 
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Environment Variables
+### 2. Add Environment Variables
 
 Create a `.env` file in the root with the following:
 
@@ -28,7 +33,11 @@ VITE_API_BASE_URL=https://api.themoviedb.org/3
 VITE_API_KEY=your_tmdb_token
 ```
 
----
+### 3. Install dependencies
+
+```bash
+npm install
+```
 
 ### 4. Run the development server
 
@@ -64,7 +73,6 @@ src/
 ```
 
 ---
-
 
 
 ## 🛠 Scripts
