@@ -6,6 +6,17 @@ This is a modern movie discovery app built for **Wexo**, using [Vue 3](https://v
 
 ## 🚀 Getting Started
 
+### 0. Prerequisites: Install Vue and Vite globally
+
+If you haven't already, install Vite and Vue CLI tools globally:
+
+```bash
+npm install -g vite
+npm install -g @vue/cli
+```
+
+---
+
 ### 1. Clone the repository
 
 ```bash
