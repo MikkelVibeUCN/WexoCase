@@ -26,7 +26,10 @@
 
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+
+
+
+import { ref, watchEffect, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { AccountService } from '../../Services/AccountService';
 
@@ -41,10 +44,13 @@ const props = defineProps<{
 
 const { id } = props
 
+// Emit to animate
+const emit = defineEmits<{
+  (e: 'favorite-toggled', payload: { id: number; isFavorited: boolean }): void
+}>()
+
 const router = useRouter()
 const hover = ref(false)
-
-
 
 function goToMoviePage() {
   router.push(`/movie/${id}`)
@@ -52,6 +58,7 @@ function goToMoviePage() {
 
 import { MovieService } from '../../Services/MovieService';
 
+// Cache movie when hovered
 function preloadOnHover() {
   hover.value = true
   MovieService.preloadMovieDetails(props.id).catch((err) => {
@@ -59,7 +66,7 @@ function preloadOnHover() {
   })
 }
 
-const isLoggedIn = AccountService.isLoggedIn
+const isLoggedIn = computed(() => AccountService.isLoggedIn)
 const isFavorited = ref(false)
 const isAnimating = ref(false)
 
@@ -79,7 +86,6 @@ async function toggleFavorite(e: MouseEvent) {
   const newStatus = !isFavorited.value
   isFavorited.value = newStatus
 
-  // 🌟 Trigger animation
   isAnimating.value = true
   setTimeout(() => (isAnimating.value = false), 400)
 
@@ -90,12 +96,18 @@ async function toggleFavorite(e: MouseEvent) {
       props.id,
       newStatus
     )
+
     MovieService.updateFavoriteLocally(props.id, newStatus)
+
+    // ✅ Tell the parent
+    emit('favorite-toggled', { id: props.id, isFavorited: newStatus })
+
   } catch (err) {
     console.error('Failed to update favorite', err)
     isFavorited.value = !newStatus
   }
 }
+
 </script>
 
 

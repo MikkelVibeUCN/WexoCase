@@ -46,7 +46,6 @@
       </div>
     </div>
 
-    <!-- Popup for small screens -->
     <div v-if="showTrailerPopup" class="popup-overlay">
       <div class="popup-image-wrapper">
         <button class="close-btn" @click="showTrailerPopup = false">Close</button>
@@ -109,34 +108,30 @@ async function favoriteClick() {
     console.error('Failed to update favorite status', err)
     isFavorited.value = !newIsFavorite
   }
-
 }
 
-  // Get data by caching or getting
-  onMounted(async () => {
-    if (!movieId) {
-      console.warn('No movieId found in route.')
-      return
+// Load movie from cache if available, if not just get it with request
+onMounted(async () => {
+  if (!movieId) {
+    console.warn('No movieId found in route.')
+    return
+  }
+
+  try {
+    await AccountService.initializeSession()
+    await MovieService.loadFavoriteMoviesIfNeeded()
+
+    movie.value = MovieService.getCachedMovie(movieId) || await MovieService.getAllMovieDetails(movieId)
+
+    if (movie.value) {
+      isFavorited.value = MovieService.isMovieInFavorites(movie.value.id)
     }
 
-    try {
-      await AccountService.initializeSession()
-      await MovieService.loadFavoriteIdsIfNeeded()
-
-      const cached = MovieService.getCachedMovie(movieId)
-      movie.value = cached || await MovieService.getAllMovieDetails(movieId)
-
-      if (movie.value) {
-        isFavorited.value = MovieService.isMovieInFavorites(movie.value.id)
-      }
-
-      loaded.value = true
-    } catch (err) {
-      console.error('Failed to load movie details or favorite status', err)
-    }
-  })
-
-
+    loaded.value = true
+  } catch (err) {
+    console.error('Failed to load movie details or favorite status', err)
+  }
+})
 </script>
 
 <style scoped>

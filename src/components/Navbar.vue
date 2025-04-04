@@ -29,7 +29,7 @@
         </ul>
 
         <div class="profile-wrapper">
-          <UserDropdown />
+          <userDropdown />
         </div>
       </div>
     </nav>
@@ -38,13 +38,13 @@
 
 <script>
 import Icon from './Shared/icon.vue'
-import UserDropdown from './userDropdown.vue'
+import userDropdown from './userDropdown.vue'
 import { GenreService } from '../Services/GenreService.ts'
 
 export default {
   components: {
     Icon,
-    UserDropdown
+    userDropdown
   },
   data() {
     return {
@@ -75,7 +75,6 @@ export default {
 </script>
 
 <style scoped>
-/* NAVBAR STYLING */
 .navbar {
   background-color: #000000;
   border-bottom: 7px solid #0D0D0D;
@@ -93,7 +92,6 @@ export default {
   padding: 0.5rem 2rem;
 }
 
-/* TRANSITION FIX */
 .navbar-slide-enter-active,
 .navbar-slide-leave-active {
   transition: transform 0.4s ease, opacity 0.4s ease;
@@ -111,7 +109,6 @@ export default {
   opacity: 1;
 }
 
-/* LOGO */
 .logo {
   width: 10rem;
   height: auto;
@@ -122,14 +119,12 @@ export default {
   align-items: center;
 }
 
-/* RIGHT SIDE */
 .nav-right {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* NAV ITEMS */
 .nav-items {
   display: flex;
   gap: 1rem;
@@ -175,7 +170,7 @@ export default {
   font-weight: bold;
 }
 
-/* DROPDOWN */
+
 .dropdown {
   position: relative;
   gap: 5px;
@@ -209,7 +204,6 @@ export default {
   background-color: #333;
 }
 
-/* Profile container */
 .profile-wrapper {
   position: relative;
 }

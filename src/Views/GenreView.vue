@@ -266,6 +266,11 @@ onBeforeUnmount(() => {
     max-height: 300px;
     overflow-y: auto;
     z-index: 5;
+
+    width: max-content;
+    min-width: 100%;
+    max-width: 400px;
+
 }
 
 .dropdown-item {

@@ -1,10 +1,9 @@
+import { ServiceClient} from "./ServiceClient.ts";
 
-import { Service } from "./Service.ts";
-
-export class GenreService extends Service {
+export class GenreService {
     static async fetchGenres(): Promise<Genre[]> {
         try {
-            const response = await this.fetchFromApi(`/genre/movie/list?language=en'`);
+            const response = await ServiceClient.get(`/genre/movie/list?language=en'`);
 
             return response.genres;
         }
@@ -19,4 +18,3 @@ export interface Genre {
     id: number;
     name: string;
 }
-

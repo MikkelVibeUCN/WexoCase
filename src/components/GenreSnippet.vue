@@ -58,6 +58,7 @@ const hasMore = ref(true)
 const isLoading = ref(false)
 const totalResults = ref<number | null>(null)
 
+// Fetch all movies for the genre, 1 page at a time, inceasing by 1 every time its run
 const fetchMovies = async () => {
   if (isLoading.value || !hasMore.value) return
 
@@ -90,6 +91,7 @@ const fetchMovies = async () => {
   }
 }
 
+// Update the scrollbuttons so the left one is visible if scrolled to the right
 const updateScrollButtons = () => {
   const el = scrollContainer.value
   if (!el) return
@@ -101,6 +103,7 @@ const scrollLeft = () => {
   scrollContainer.value?.scrollBy({ left: -300, behavior: 'smooth' })
 }
 
+// Pagination to fetch more movies on scroll
 const scrollRight = async () => {
   const el = scrollContainer.value
   if (!el) return
@@ -115,15 +118,14 @@ const scrollRight = async () => {
   }
 }
 
-
 const handleScroll = () => {
   updateScrollButtons()
 }
-
+// Initial loading, creating session and loading favorite movies if not already done, fetches movies for the genre after
 onMounted(async () => {
   try {
     await AccountService.initializeSession()
-    await MovieService.loadFavoriteIdsIfNeeded()
+    await MovieService.loadFavoriteMoviesIfNeeded()
   } catch (err) {
     console.warn('Failed to load favorite IDs', err)
   }
@@ -140,7 +142,6 @@ onMounted(async () => {
   z-index: 1;
 }
 
-/* Header */
 .genre-header {
   display: flex;
   justify-content: space-between;
@@ -180,7 +181,6 @@ onMounted(async () => {
   background-color: #222;
 }
 
-/* Movie Row */
 .movie-row-wrapper {
   position: relative;
   display: flex;
@@ -213,7 +213,6 @@ onMounted(async () => {
   display: none;
 }
 
-/* Scroll Buttons */
 .scroll-button {
   position: absolute;
   top: 50%;

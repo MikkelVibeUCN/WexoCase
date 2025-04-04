@@ -6,7 +6,7 @@
       height: ImgHeight + 'px',
     }"
   >
-    <img :src="srcImage" alt="User Icon" class="image" />
+    <img :src="srcImage" alt="icon" class="image" />
   </div>
 </template>
 

@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { Service } from './Service'
+import { ServiceClient } from './ServiceClient'
 import { AuthService } from './AuthService'
 import { CookieService } from './CookieService'
 import { MovieService } from './MovieService'
@@ -15,7 +15,7 @@ const _user = ref<AccountDetails | null>(null)
 const _isInitialized = ref(false)
 let _initPromise: Promise<void> | null = null
 
-export class AccountService extends Service {
+export class AccountService {
   static get user() {
     return _user.value
   }
@@ -48,7 +48,7 @@ export class AccountService extends Service {
         }
 
         if (_user.value) {
-          await MovieService.loadFavoriteIdsIfNeeded()
+          await MovieService.loadFavoriteMoviesIfNeeded()
         }
 
       } catch (err) {
@@ -63,9 +63,13 @@ export class AccountService extends Service {
     return _initPromise
   }
 
-
   static logout(): void {
+    // Delete session if theres a session id in cookie
+    if(this.sessionId) {
+      AuthService.deleteSession(this.sessionId as string)
+    }
     CookieService.remove('session_id')
+
     _user.value = null
     _isInitialized.value = false
 
@@ -74,7 +78,7 @@ export class AccountService extends Service {
 
   static async getDetails(sessionId: string): Promise<AccountDetails> {
     const endpoint = `/account?session_id=${sessionId}`
-    const data = await this.fetchFromApi(endpoint)
+    const data = await ServiceClient.get(endpoint)
 
     return {
       id: data.id,
@@ -86,23 +90,22 @@ export class AccountService extends Service {
     }
   }
 
-  static async addMovieToFavorites(accountId: number, sessionId: string, movieId: number, favorite: boolean): Promise<void> {
+  static async addMovieToFavorites(accountId: number, sessionId: string, movieId: number, isFavorite: boolean): Promise<void> {
     const url = `/account/${accountId}/favorite?session_id=${sessionId}`
     const body = {
       media_type: 'movie',
       media_id: movieId,
-      favorite,
+      favorite: isFavorite,
     }
-    await this.postToApi(url, body)
+    await ServiceClient.post(url, body)
   }
 
   static async isMovieFavorited(movieId: number): Promise<boolean> {
     try {
-      await MovieService.loadFavoriteIdsIfNeeded()
+      await MovieService.loadFavoriteMoviesIfNeeded()
       return MovieService.isMovieInFavorites(movieId)
     } catch (err) {
       return false
     }
   }
-
 }

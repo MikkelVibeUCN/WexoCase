@@ -2,7 +2,6 @@
   <div class="favorites-container">
     <h1 class="favorites-title">Your Favorite Movies</h1>
 
-    <!-- 🔥 Add transition-group here -->
     <transition-group name="fade" tag="div" class="favorites-grid">
       <Movie
         v-for="movie in favoriteMovies"
@@ -36,13 +35,16 @@ const loaded = ref(false)
 async function loadFavorites() {
   try {
     loaded.value = false
+
     await AccountService.initializeSession()
-    await MovieService.loadFavoriteIdsIfNeeded()
+    await MovieService.loadFavoriteMoviesIfNeeded()
+
     favoriteMovies.value = await MovieService.getFavoriteMovies()
-    console.log('Favorite view updated:', favoriteMovies.value.map(m => m.title))
-  } catch (err) {
+  } 
+  catch (err) {
     console.error('Error loading favorites:', err)
-  } finally {
+  } 
+  finally {
     loaded.value = true
   }
 }
@@ -52,17 +54,20 @@ function handleFavoriteChange({ id, isFavorited }: { id: number; isFavorited: bo
     favoriteMovies.value = favoriteMovies.value.filter(m => m.id !== id)
   }
 }
-
-
 onMounted(loadFavorites)
 
 watchEffect(async () => {
   const version = favoriteState.version
-  favoriteMovies.value = await MovieService.getFavoriteMovies()
+  const newFavorites = await MovieService.getFavoriteMovies()
+
+  // Avoid breaking the array reference → use .splice()
+  favoriteMovies.value.splice(0, favoriteMovies.value.length, ...newFavorites)
 })
 
 </script>
+
 <style scoped>
+
 .favorites-container {
   padding: 2rem;
   padding-top: 5rem;
@@ -97,5 +102,4 @@ watchEffect(async () => {
   opacity: 0;
   transform: scale(0.95);
 }
-
 </style>
