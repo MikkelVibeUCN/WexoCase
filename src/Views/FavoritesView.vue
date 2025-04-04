@@ -61,12 +61,11 @@ watchEffect(async () => {
   favoriteMovies.value = await MovieService.getFavoriteMovies()
 })
 
-
-
 </script>
 <style scoped>
 .favorites-container {
   padding: 2rem;
+  padding-top: 5rem;
   color: white;
 }
 

@@ -7,28 +7,23 @@
 
       <div class="nav-right">
         <ul class="nav-items">
-          <router-link
-            class="nav-item"
-            v-for="(item, index) in navbarItems"
-            :key="index"
-            :to="item.route"
-          >
+          <router-link class="nav-item" v-for="(item, index) in navbarItems" :key="index" :to="item.route">
             {{ item.displayText }}
           </router-link>
 
-          <li
-            class="nav-item dropdown"
-            @click="isGenresOpen = !isGenresOpen"
-            @mouseleave="isGenresOpen = false"
-          >
+          <li class="nav-item dropdown" @click="isGenresOpen = !isGenresOpen" @mouseleave="isGenresOpen = false">
             Genres
             <transition name="slide-down">
               <ul v-if="isGenresOpen" class="dropdown-menu">
-                <li class="dropdown-item" v-for="(genre, i) in genres" :key="i">
-                  {{ genre.name }}
-                </li>
+                <router-link v-for="(genre, i) in genres" :key="i" :to="{ name: 'genre', params: { id: genre.id } }"
+                  class="dropdown-item" @click="isGenresOpen = false" custom v-slot="{ navigate, href }">
+                  <li :href="href" @click="navigate">
+                    {{ genre.name }}
+                  </li>
+                </router-link>
               </ul>
             </transition>
+
             <Icon :ImgWidth="10" :ImgHeight="5" srcImage="/DropDownIcon.svg" />
           </li>
         </ul>
@@ -56,7 +51,6 @@ export default {
       isGenresOpen: false,
       genres: [],
       navbarItems: [
-        { displayText: 'Popular', route: '/popular' },
         { displayText: 'Home', route: '/' }
       ],
       showNavbar: true,
@@ -94,9 +88,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 10;
+  z-index: 50;
   box-sizing: border-box;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 2rem;
 }
 
 /* TRANSITION FIX */
@@ -104,11 +98,13 @@ export default {
 .navbar-slide-leave-active {
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
+
 .navbar-slide-enter-from,
 .navbar-slide-leave-to {
   transform: translateY(-100%);
   opacity: 0;
 }
+
 .navbar-slide-enter-to,
 .navbar-slide-leave-from {
   transform: translateY(0%);
@@ -120,6 +116,7 @@ export default {
   width: 10rem;
   height: auto;
 }
+
 .logo-link {
   display: flex;
   align-items: center;
@@ -154,6 +151,7 @@ export default {
   text-decoration: none;
   color: inherit;
 }
+
 .nav-item::after {
   content: '';
   position: absolute;
@@ -163,13 +161,16 @@ export default {
   pointer-events: none;
   z-index: 1;
 }
+
 .nav-item:hover::after {
   background-color: rgba(255, 255, 255, 0.08);
 }
-.nav-item > * {
+
+.nav-item>* {
   position: relative;
   z-index: 2;
 }
+
 .router-link-active {
   font-weight: bold;
 }
@@ -179,6 +180,7 @@ export default {
   position: relative;
   gap: 5px;
 }
+
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -195,12 +197,14 @@ export default {
   width: max-content;
   transition: all 0.3s ease;
 }
+
 .dropdown-item {
   padding: 0.5rem 1rem;
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.1s ease;
 }
+
 .dropdown-item:hover {
   background-color: #333;
 }
@@ -216,10 +220,12 @@ export default {
   transition: max-height 0.3s ease-in-out;
   overflow: hidden;
 }
+
 .slide-down-enter-from,
 .slide-down-leave-to {
   max-height: 0;
 }
+
 .slide-down-enter-to,
 .slide-down-leave-from {
   max-height: 500px;

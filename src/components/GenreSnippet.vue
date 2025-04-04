@@ -1,26 +1,40 @@
 <template>
   <div class="genre-snippet">
     <div class="genre-header">
-      <h2 class="genre-title">{{ genreName }}</h2>
-      <span class="genre-total">({{ totalResults ?? '...' }})</span>
+      <div class="title-wrapper">
+        <h2 class="genre-title">{{ genreName }}</h2>
+        <span class="genre-total">({{ totalResults ?? '...' }})</span>
+      </div>
+      <router-link class="view-all-button" :to="{ name: 'genre', params: { id: genreId } }">
+        View All →
+      </router-link>
     </div>
 
     <div class="movie-row-wrapper">
       <button v-if="canScrollLeft" class="scroll-button left" @click="scrollLeft">
-        ◀
+        <img src="/scroll.png" alt="Scroll Left" class="scroll-icon flipped" />
       </button>
 
       <div class="movie-row" ref="scrollContainer" @scroll="handleScroll">
-        <movie v-for="movie in movies" :key="movie.id" :id="movie.id" :title="movie.title"
-          :imageUrl="movie.trailerImageUrl" :genres="movie.genres" :rating="movie.rating" width="160px" />
+        <movie
+          v-for="movie in movies"
+          :key="movie.id"
+          :id="movie.id"
+          :title="movie.title"
+          :imageUrl="movie.trailerImageUrl"
+          :genres="movie.genres"
+          :rating="movie.rating"
+          width="160px"
+        />
       </div>
 
       <button v-if="canScrollRight" class="scroll-button right" @click="scrollRight">
-        ▶
+        <img src="/scroll.png" alt="Scroll Right" class="scroll-icon" />
       </button>
     </div>
   </div>
 </template>
+
 
 
 <script setup lang="ts">
@@ -121,23 +135,29 @@ onMounted(async () => {
 .genre-snippet {
   width: 100%;
   padding-left: 2rem;
+  padding-right: 2rem;
   box-sizing: border-box;
-  gap: 0.5rem;
   z-index: 1;
 }
 
-
+/* Header */
 .genre-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.title-wrapper {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  padding: 0;
 }
 
 .genre-title {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: bold;
+  color: #fff;
 }
 
 .genre-total {
@@ -145,15 +165,29 @@ onMounted(async () => {
   color: #aaa;
 }
 
+.view-all-button {
+  font-size: 0.9rem;
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 0.35rem 1rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.view-all-button:hover {
+  background-color: #222;
+}
+
+/* Movie Row */
 .movie-row-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  /* Vertically center the button with the row */
   overflow: hidden;
   width: 100%;
 }
-
 
 .movie-row {
   display: flex;
@@ -167,21 +201,19 @@ onMounted(async () => {
   max-width: 100%;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  height: auto;
   flex-grow: 1;
 }
 
-.movie-row>* {
+.movie-row > * {
   flex: 0 0 auto;
   scroll-snap-align: start;
 }
-
 
 .movie-row::-webkit-scrollbar {
   display: none;
 }
 
-
+/* Scroll Buttons */
 .scroll-button {
   position: absolute;
   top: 50%;
@@ -189,13 +221,15 @@ onMounted(async () => {
   z-index: 10;
   background: rgba(0, 0, 0, 0.6);
   border: none;
-  border-radius: 999px;
-  font-size: 1.2rem;
-  color: white;
-  padding: 0.4rem 0.6rem;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: background 0.3s ease;
-  z-index: 2;
 }
 
 .scroll-button:hover {
@@ -203,10 +237,22 @@ onMounted(async () => {
 }
 
 .scroll-button.left {
-  left: 0.5rem;
+  left: 0.75rem;
 }
 
 .scroll-button.right {
-  right: 0.5rem;
+  right: 0.75rem;
 }
+
+.scroll-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+}
+
+.scroll-icon.flipped {
+  transform: scaleX(-1);
+}
+
 </style>

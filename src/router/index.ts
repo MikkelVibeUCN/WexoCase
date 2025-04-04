@@ -4,6 +4,7 @@ import HomeView from '../views/HomeView.vue'
 import PopularView from '../views/PopularView.vue'
 import MovieView from '../Views/MovieView.vue'
 import FavoritesView from '../Views/FavoritesView.vue'
+import GenreView from '../Views/GenreView.vue'
 
 const routes = [
   {
@@ -28,6 +29,12 @@ const routes = [
     component: FavoritesView
 
   },
+  {
+    path: '/genre/:id',
+    name: 'genre',
+    component: GenreView
+  }
+  
 ]
 
 const router = createRouter({

@@ -5,7 +5,7 @@
       @click="toggleMenu"
     >
       <div class="icon-button">
-        <icon :ImgWidth="23" :ImgHeight="23" srcImage="/UserIcon.svg" />
+        <icon :ImgWidth="30" :ImgHeight="30" srcImage="/UserIcon.svg" />
       </div>
   
       <transition name="slide-down">

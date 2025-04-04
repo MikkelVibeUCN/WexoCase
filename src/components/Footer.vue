@@ -9,11 +9,6 @@
         </div>
       </div>
   
-      <div class="footer-right">
-        <div class="footer-title">Explore</div>
-        <router-link to="/genres" class="footer-link">Genres</router-link>
-        <router-link to="/popular" class="footer-link">Popular</router-link>
-      </div>
     </div>
   </template>
   
