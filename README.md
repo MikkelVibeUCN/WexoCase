@@ -24,13 +24,22 @@ git clone https://github.com/MikkelVibeUCN/WexoCase.git
 cd WexoCase
 ```
 
-### 2. Install dependencies
+### 2. Add Environment Variables
+
+Create a `.env` file in the root with the following:
+
+```
+VITE_API_BASE_URL=https://api.themoviedb.org/3
+VITE_API_KEY=your_tmdb_token
+```
+
+### 3. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Run the development server
+### 4. Run the development server
 
 ```bash
 npm run dev
@@ -65,16 +74,6 @@ src/
 
 ---
 
-## 🔐 Environment Variables
-
-Create a `.env` file in the root with the following:
-
-```
-VITE_API_BASE_URL=https://api.themoviedb.org/3
-VITE_API_KEY=your_tmdb_token
-```
-
----
 
 ## 🛠 Scripts
 
