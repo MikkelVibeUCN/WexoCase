@@ -12,7 +12,7 @@
 
 <script>
 export default {
-  name: 'UserIcon',
+  name: 'Icon',
   props: {
     srcImage: {
       type: String

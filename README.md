@@ -19,7 +19,18 @@ cd WexoCase
 npm install
 ```
 
-### 3. Run the development server
+### 3. Environment Variables
+
+Create a `.env` file in the root with the following:
+
+```
+VITE_API_BASE_URL=https://api.themoviedb.org/3
+VITE_API_KEY=your_tmdb_token
+```
+
+---
+
+### 4. Run the development server
 
 ```bash
 npm run dev
@@ -54,16 +65,7 @@ src/
 
 ---
 
-## 🔐 Environment Variables
 
-Create a `.env` file in the root with the following:
-
-```
-VITE_API_BASE_URL=https://api.themoviedb.org/3
-VITE_API_KEY=your_tmdb_token
-```
-
----
 
 ## 🛠 Scripts
 

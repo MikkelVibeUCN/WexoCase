@@ -24,7 +24,7 @@
 
 
 <script setup lang="ts">
-import { ref, watchEffect, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import Movie from '../components/Shared/movie.vue'
 import { MovieService, type MovieShort, favoriteState } from '../Services/MovieService'
 import { AccountService } from '../Services/AccountService'
@@ -56,11 +56,8 @@ function handleFavoriteChange({ id, isFavorited }: { id: number; isFavorited: bo
 }
 onMounted(loadFavorites)
 
-watchEffect(async () => {
-  const version = favoriteState.version
+watch(() => favoriteState.version, async () => {
   const newFavorites = await MovieService.getFavoriteMovies()
-
-  // Avoid breaking the array reference → use .splice()
   favoriteMovies.value.splice(0, favoriteMovies.value.length, ...newFavorites)
 })
 

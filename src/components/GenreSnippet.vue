@@ -35,8 +35,6 @@
   </div>
 </template>
 
-
-
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 import movie from './Shared/movie.vue'
